@@ -25,6 +25,17 @@ data:
     database:
       path: "/tmp/kaf-mirror.db"
       retention_days: 30
+    clusters:
+      source:
+        provider: "plain"
+        brokers: {{ .Values.config.sourceBrokers | quote }}
+        security:
+          enabled: false
+      target:
+        provider: "plain"
+        brokers: {{ .Values.config.targetBrokers | quote }}
+        security:
+          enabled: false
     source_cluster:
       brokers: {{ .Values.config.sourceBrokers | quote }}
       security:
@@ -34,7 +45,27 @@ data:
       security:
         enabled: false
     replication:
+      job_id: "qip-bdr-all-tiers"
       batch_size: 1000
       parallelism: 4
       compression: "none"
       topic_discovery_interval: "5m"
+    topics:
+      - source: "qip.bronze.questions.raw"
+        target: "qip.bronze.questions.raw"
+        enabled: true
+      - source: "qip.bronze.ingestion.dlq"
+        target: "qip.bronze.ingestion.dlq"
+        enabled: true
+      - source: "qip.silver.questions.enriched"
+        target: "qip.silver.questions.enriched"
+        enabled: true
+      - source: "qip.gold.questions.ready"
+        target: "qip.gold.questions.ready"
+        enabled: true
+      - source: "qip.ops.questions.skipped"
+        target: "qip.ops.questions.skipped"
+        enabled: true
+      - source: "qip.ops.dataproduct.metadata"
+        target: "qip.ops.dataproduct.metadata"
+        enabled: true
