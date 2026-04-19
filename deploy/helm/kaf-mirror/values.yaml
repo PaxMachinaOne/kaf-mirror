@@ -1,0 +1,69 @@
+image:
+  repository: ghcr.io/scalytics/kaf-mirror
+  tag: "1.2.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 8088
+  targetPort: 8080
+
+# Kafka clusters — override per deployment. See configs/docker.yml for schema.
+config:
+  server:
+    host: "0.0.0.0"
+    port: 8080
+    mode: "production"
+  sourceBrokers: "kafscale-broker:9092"
+  targetBrokers: "kafscale-broker-standby:9092"
+
+persistence:
+  enabled: true
+  storageClass: ""
+  size: 2Gi
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+probes:
+  liveness:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 15
+    periodSeconds: 20
+  readiness:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  fsGroup: 65532
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+labels:
+  app.kubernetes.io/part-of: ops-foundation
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

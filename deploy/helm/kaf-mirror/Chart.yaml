@@ -1,0 +1,16 @@
+apiVersion: v2
+name: kaf-mirror
+description: >
+  KafMirror — cross-cluster Kafka topic replication engine (Go/franz-go).
+  Deployed as a Deployment + Service + ConfigMap.
+type: application
+version: 0.1.0
+appVersion: "1.2.0"
+maintainers:
+  - name: Scalytics Platform Team
+keywords:
+  - kafka
+  - mirror
+  - replication
+  - bdr
+  - scalytics

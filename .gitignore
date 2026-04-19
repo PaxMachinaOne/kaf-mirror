@@ -5,7 +5,7 @@
 *.so
 *.dylib
 admin-cli
-kaf-mirror
+/kaf-mirror
 mirror-cli
 mirror-cli-*
 kaf-mirror-*
