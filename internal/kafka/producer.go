@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"kaf-mirror/internal/config"
 	"kaf-mirror/pkg/logger"
+	"os"
 	"strings"
 	"sync/atomic"
 
@@ -52,7 +53,28 @@ func NewProducer(cfg config.ClusterConfig, replicationCfg config.ReplicationConf
 		kgo.ProducerBatchMaxBytes(int32(replicationCfg.BatchSize * 1024)),
 		kgo.ProducerBatchCompression(getCompressionCodec(replicationCfg.Compression)),
 	}
-	logger.Info("Producer: Using idempotent writes (franz-go default)")
+	// OPS-004: idempotent writes require the target broker to implement
+	// INIT_PRODUCER_ID (API key 22). Some brokers (e.g. KafScale today) do not.
+	// Two opt-outs, checked in order:
+	//   1. per-cluster config: disable_idempotent_writes: true in the cluster
+	//      block of the YAML config (compile-time safe, typed).
+	//   2. process-wide env var KAFMIRROR_DISABLE_IDEMPOTENT_WRITES=true
+	//      (convenient for operators who configure clusters via the REST API
+	//      rather than a static file, where the DB schema doesn't yet carry
+	//      the flag).
+	disableIdempotent := cfg.DisableIdempotentWrites
+	if !disableIdempotent {
+		v := strings.ToLower(strings.TrimSpace(os.Getenv("KAFMIRROR_DISABLE_IDEMPOTENT_WRITES")))
+		if v == "true" || v == "1" || v == "yes" {
+			disableIdempotent = true
+		}
+	}
+	if disableIdempotent {
+		opts = append(opts, kgo.DisableIdempotentWrite())
+		logger.Info("Producer: idempotent writes DISABLED (OPS-004 workaround)")
+	} else {
+		logger.Info("Producer: Using idempotent writes (franz-go default)")
+	}
 
 	if strings.Contains(strings.ToUpper(cfg.Security.Protocol), "SSL") {
 		logger.Info("Producer: Enabling TLS connection")

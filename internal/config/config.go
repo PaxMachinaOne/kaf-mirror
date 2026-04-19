@@ -72,6 +72,12 @@ type ClusterConfig struct {
 	ClusterID string         `mapstructure:"cluster_id"`
 	Brokers   string         `mapstructure:"brokers"`
 	Security  SecurityConfig `mapstructure:"security"`
+
+	// DisableIdempotentWrites forces the producer into non-idempotent mode.
+	// Set this to true when the target broker does not implement the
+	// Kafka INIT_PRODUCER_ID API (API key 22). As of 2026-04, this applies
+	// to KafScale; see OPS-004.
+	DisableIdempotentWrites bool `mapstructure:"disable_idempotent_writes"`
 }
 
 // SecurityConfig defines security settings for Kafka connections
