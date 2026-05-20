@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/scalytics/kaf-mirror
-  tag: "1.2.0"
+  tag: "v1.2.0"
   pullPolicy: IfNotPresent
 
 replicaCount: 1
@@ -46,15 +46,26 @@ probes:
     initialDelaySeconds: 5
     periodSeconds: 10
 
+# PSA-restricted-compatible (PLAN-06 E-04 / audit F-4). kaf-mirror's
+# Dockerfile runs as UID 65532 (distroless nonroot). Container key
+# `securityContext` predates the `containerSecurityContext` convention
+# used in newer SAO charts; kept as-is for backward compatibility.
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 65532
+  runAsGroup: 65532
   fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
 
 securityContext:
   allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  readOnlyRootFilesystem: false
   capabilities:
     drop: ["ALL"]
+  seccompProfile:
+    type: RuntimeDefault
 
 serviceAccount:
   create: true
