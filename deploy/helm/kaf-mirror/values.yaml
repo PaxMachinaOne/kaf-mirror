@@ -75,6 +75,21 @@ serviceAccount:
 labels:
   app.kubernetes.io/part-of: ops-foundation
 
+# Prometheus metrics + ServiceMonitor (PLAN-06 iter-7 E-12 / G-007).
+#
+# IMPORTANT: kaf-mirror imports prometheus/client_golang but does not
+# currently register a promhttp.Handler() at /metrics. Tracked as
+# BUG-0011. The template ships gated by `metrics.enabled` (default
+# false); flip on after the binary serves /metrics.
+metrics:
+  enabled: false
+  path: "/metrics"
+  port: 8088
+  serviceMonitor:
+    labels: {}
+    interval: 30s
+    scrapeTimeout: 10s
+
 nodeSelector: {}
 tolerations: []
 affinity: {}
