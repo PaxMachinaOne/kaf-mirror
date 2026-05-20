@@ -1,5 +1,5 @@
 image:
-  repository: ghcr.io/scalytics/kaf-mirror
+  repository: 192.168.0.131:5100/scalytics/kaf-mirror
   tag: "v1.2.0"
   pullPolicy: IfNotPresent
 
