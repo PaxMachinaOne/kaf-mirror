@@ -1,6 +1,7 @@
 image:
   repository: 192.168.0.131:5100/scalytics/kaf-mirror
-  tag: "v1.2.0"
+  # rc4 is the first tag that serves /metrics (BUG-0011).
+  tag: "2026.05-rc4"
   pullPolicy: IfNotPresent
 
 replicaCount: 1
@@ -82,7 +83,9 @@ labels:
 # BUG-0011. The template ships gated by `metrics.enabled` (default
 # false); flip on after the binary serves /metrics.
 metrics:
-  enabled: false
+  # BUG-0011: enabled now that the rc4 image serves /metrics (promhttp
+  # via the fiber adaptor, on the same port as /health).
+  enabled: true
   path: "/metrics"
   port: 8088
   serviceMonitor:
