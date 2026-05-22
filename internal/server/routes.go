@@ -13,11 +13,18 @@ package server
 
 import (
 	"kaf-mirror/internal/server/middleware"
+
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func (s *Server) setupRoutes() {
 	s.App.Get("/health", s.handleHealthCheck)
 	s.App.Get("/api/v1/version", s.handleGetVersion)
+	// BUG-0011: Prometheus scrape endpoint. Unauthenticated by design so the
+	// ServiceMonitor scrapes without a token; exposes only Go runtime +
+	// process metrics, no business data.
+	s.App.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
 
 	// WebSocket route - MUST be before API group to avoid auth middleware conflict
 	s.App.Get("/ws", s.handleWebSocketAuth)
