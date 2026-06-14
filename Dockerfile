@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.24-alpine AS builder
+FROM golang:1.26-alpine AS builder
 RUN apk add --no-cache build-base sqlite-dev
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -12,7 +12,7 @@ RUN go build -ldflags="-s -w" -o bin/admin-cli cmd/admin-cli/main.go
 RUN go build -ldflags="-s -w" -o bin/mirror-cli cmd/mirror-cli/main.go
 
 # Final stage
-FROM alpine:latest
+FROM alpine:3.21
 RUN apk add --no-cache sqlite-libs
 WORKDIR /app
 RUN addgroup -S kaf-mirror && adduser -S kaf-mirror -G kaf-mirror
